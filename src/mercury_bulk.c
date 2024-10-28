@@ -242,7 +242,7 @@ typedef na_return_t (*na_bulk_op_t)(na_class_t *na_class, na_context_t *context,
  */
 static hg_return_t
 hg_bulk_create(hg_core_class_t *core_class, uint32_t count, void **bufs,
-    const hg_size_t *lens, uint8_t flags, const struct hg_bulk_attr *attrs,
+    const hg_size_t *lens, uint32_t flags, const struct hg_bulk_attr *attrs,
     struct hg_bulk **hg_bulk_p);
 
 /**
@@ -257,7 +257,7 @@ hg_bulk_free(struct hg_bulk *hg_bulk);
 static hg_return_t
 hg_bulk_create_na_mem_descs(struct hg_bulk_na_mem_desc *na_mem_descs,
     na_class_t *na_class, struct hg_bulk_segment *segments, uint32_t count,
-    uint8_t flags, enum na_mem_type mem_type, uint64_t device);
+    uint32_t flags, enum na_mem_type mem_type, uint64_t device);
 
 /**
  * Free NA memory descriptors.
@@ -294,7 +294,7 @@ hg_bulk_deregister(
  * Get serialize size.
  */
 static hg_size_t
-hg_bulk_get_serialize_size(struct hg_bulk *hg_bulk, uint8_t flags);
+hg_bulk_get_serialize_size(struct hg_bulk *hg_bulk, uint32_t flags);
 
 /**
  * Get serialize size of NA memory descriptors.
@@ -308,7 +308,7 @@ hg_bulk_get_serialize_size_mem_descs(
  */
 static hg_return_t
 hg_bulk_serialize(
-    void *buf, hg_size_t buf_size, uint8_t flags, struct hg_bulk *hg_bulk);
+    void *buf, hg_size_t buf_size, uint32_t flags, struct hg_bulk *hg_bulk);
 
 /**
  * Serialize NA memory descriptors.
@@ -338,7 +338,7 @@ hg_bulk_deserialize_mem_descs(na_class_t *na_class, const char **buf_p,
  */
 static void
 hg_bulk_access(struct hg_bulk *hg_bulk, hg_size_t offset, hg_size_t size,
-    uint8_t flags, uint32_t max_count, void **buf_ptrs, hg_size_t *buf_sizes,
+    uint32_t flags, uint32_t max_count, void **buf_ptrs, hg_size_t *buf_sizes,
     uint32_t *actual_count);
 
 /**
@@ -429,9 +429,9 @@ static hg_return_t
 hg_bulk_transfer_na(hg_bulk_op_t op, na_addr_t *na_origin_addr,
     uint8_t origin_id, const struct hg_bulk_segment *origin_segments,
     uint32_t origin_count, na_mem_handle_t **origin_mem_handles,
-    uint8_t origin_flags, hg_size_t origin_offset,
+    uint32_t origin_flags, hg_size_t origin_offset,
     const struct hg_bulk_segment *local_segments, uint32_t local_count,
-    na_mem_handle_t **local_mem_handles, uint8_t local_flags,
+    na_mem_handle_t **local_mem_handles, uint32_t local_flags,
     hg_size_t local_offset, hg_size_t size,
     struct hg_bulk_op_id *hg_bulk_op_id);
 
@@ -517,7 +517,7 @@ hg_bulk_cancel(struct hg_bulk_op_id *hg_bulk_op_id);
 /*---------------------------------------------------------------------------*/
 static hg_return_t
 hg_bulk_create(hg_core_class_t *core_class, uint32_t count, void **bufs,
-    const hg_size_t *lens, uint8_t flags, const struct hg_bulk_attr *attrs,
+    const hg_size_t *lens, uint32_t flags, const struct hg_bulk_attr *attrs,
     struct hg_bulk **hg_bulk_p)
 {
     struct hg_bulk *hg_bulk = NULL;
@@ -749,7 +749,7 @@ error:
 static hg_return_t
 hg_bulk_create_na_mem_descs(struct hg_bulk_na_mem_desc *na_mem_descs,
     na_class_t *na_class, struct hg_bulk_segment *segments, uint32_t count,
-    uint8_t flags, enum na_mem_type mem_type, uint64_t device)
+    uint32_t flags, enum na_mem_type mem_type, uint64_t device)
 {
     na_mem_handle_t **na_mem_handles;
     size_t *na_mem_serialize_sizes;
@@ -975,7 +975,7 @@ error:
 
 /*---------------------------------------------------------------------------*/
 static hg_size_t
-hg_bulk_get_serialize_size(struct hg_bulk *hg_bulk, uint8_t flags)
+hg_bulk_get_serialize_size(struct hg_bulk *hg_bulk, uint32_t flags)
 {
     struct hg_bulk_desc_info *desc_info = &hg_bulk->desc.info;
     hg_size_t ret = 0;
@@ -1063,7 +1063,7 @@ hg_bulk_get_serialize_size_mem_descs(
 /*---------------------------------------------------------------------------*/
 static hg_return_t
 hg_bulk_serialize(
-    void *buf, hg_size_t buf_size, uint8_t flags, struct hg_bulk *hg_bulk)
+    void *buf, hg_size_t buf_size, uint32_t flags, struct hg_bulk *hg_bulk)
 {
     struct hg_bulk_segment *segments = HG_BULK_SEGMENTS(hg_bulk);
     char *buf_ptr = (char *) buf;
@@ -1529,7 +1529,7 @@ hg_bulk_set_serialize_cached_ptr(
 /*---------------------------------------------------------------------------*/
 static void
 hg_bulk_access(struct hg_bulk *hg_bulk, hg_size_t offset, hg_size_t size,
-    uint8_t flags, uint32_t max_count, void **buf_ptrs, hg_size_t *buf_sizes,
+    uint32_t flags, uint32_t max_count, void **buf_ptrs, hg_size_t *buf_sizes,
     uint32_t *actual_count)
 {
     struct hg_bulk_segment *segments = HG_BULK_SEGMENTS(hg_bulk);
@@ -1920,8 +1920,8 @@ hg_bulk_transfer(hg_core_context_t *core_context, hg_cb_t callback, void *arg,
         HG_BULK_SEGMENTS(hg_bulk_local);
     uint32_t origin_count = hg_bulk_origin->desc.info.segment_count,
              local_count = hg_bulk_local->desc.info.segment_count;
-    uint8_t origin_flags = hg_bulk_origin->desc.info.flags;
-    uint8_t local_flags = hg_bulk_local->desc.info.flags;
+    uint32_t origin_flags = hg_bulk_origin->desc.info.flags;
+    uint32_t local_flags = hg_bulk_local->desc.info.flags;
     struct hg_bulk_op_id *hg_bulk_op_id = NULL;
     struct hg_bulk_op_pool *hg_bulk_op_pool =
         hg_core_context_get_bulk_op_pool(core_context);
@@ -2143,9 +2143,9 @@ static hg_return_t
 hg_bulk_transfer_na(hg_bulk_op_t op, na_addr_t *na_origin_addr,
     uint8_t origin_id, const struct hg_bulk_segment *origin_segments,
     uint32_t origin_count, na_mem_handle_t **origin_mem_handles,
-    uint8_t origin_flags, hg_size_t origin_offset,
+    uint32_t origin_flags, hg_size_t origin_offset,
     const struct hg_bulk_segment *local_segments, uint32_t local_count,
-    na_mem_handle_t **local_mem_handles, uint8_t local_flags,
+    na_mem_handle_t **local_mem_handles, uint32_t local_flags,
     hg_size_t local_offset, hg_size_t size, struct hg_bulk_op_id *hg_bulk_op_id)
 {
     hg_bulk_na_op_id_t *hg_bulk_na_op_ids;
@@ -2504,7 +2504,7 @@ hg_bulk_trigger_entry(struct hg_bulk_op_id *hg_bulk_op_id)
 /*---------------------------------------------------------------------------*/
 hg_return_t
 HG_Bulk_create(hg_class_t *hg_class, uint32_t count, void **buf_ptrs,
-    const hg_size_t *buf_sizes, uint8_t flags, hg_bulk_t *handle)
+    const hg_size_t *buf_sizes, uint32_t flags, hg_bulk_t *handle)
 {
     struct hg_bulk_attr attrs = {.mem_type = HG_MEM_TYPE_HOST, .device = 0};
     hg_return_t ret;
@@ -2545,7 +2545,7 @@ error:
 /*---------------------------------------------------------------------------*/
 hg_return_t
 HG_Bulk_create_attr(hg_class_t *hg_class, uint32_t count, void **buf_ptrs,
-    const hg_size_t *buf_sizes, uint8_t flags, const struct hg_bulk_attr *attrs,
+    const hg_size_t *buf_sizes, uint32_t flags, const struct hg_bulk_attr *attrs,
     hg_bulk_t *handle)
 {
     hg_return_t ret;
@@ -2676,7 +2676,7 @@ error:
 /*---------------------------------------------------------------------------*/
 hg_return_t
 HG_Bulk_access(hg_bulk_t handle, hg_size_t offset, hg_size_t size,
-    uint8_t flags, uint32_t max_count, void **buf_ptrs, hg_size_t *buf_sizes,
+    uint32_t flags, uint32_t max_count, void **buf_ptrs, hg_size_t *buf_sizes,
     uint32_t *actual_count)
 {
     hg_return_t ret;
